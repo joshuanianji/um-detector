@@ -2,3 +2,4 @@
 voice-analyzer/__pycache__
 voice-analyzer/pocketsphinx-python
 voice-analyzer/venv
+node_modules
