@@ -1,37 +1,217 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>INSERT NAME</title>
-    <!--<script type="module" src="modules.js"></script>-->
-    <script src="opus-recorder-master/dist/recorder.min.js"></script>
-    <script src="popup.js"></script>
-    <link rel="stylesheet" href="style.css">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src https://*; child-src 'none';">
+  <title>Ogg Opus Encoder Example</title>
+  <script src="opus-recorder-master/dist/recorder.min.js"></script>
+  <style type='text/css'>
+    ul { list-style: none; }
+    li { margin: 1em; }
+    audio { display: block; }
+  </style>
+</head>
+<body>
 
-    <meta name="viewport">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src https://*; child-src 'none';">
+  <h1>Encoder example</h1>
+  <p>Before you enable monitoring, make sure to either plug in headphones or turn the volume down.</p>
+  <p>This ogg opus implementation does not support more than 2 channels.</p>
 
-    <!--<script src="app.js"></script>-->
-  </head>
-  <body>
-    <h1>INSERT NAME</h1>
-    <p>Hit the button below to record!</p>
-    <div id="controls">
-      <button id="record">Record</button>
-      <button id="stop" disabled>Stop</button>
-      <button id="download" disabled>Download</button>
-    </div>
+  <h2>Options</h2>
 
-    <div id="formats">Format: start recording to see sample rate</div>
-  	<p><strong>Recordings:</strong></p>
-  	<ol id="recordingsList"></ol>
+  <div>
+    <label>monitorGain</label>
+    <input id="monitorGain" type="number" value="0" />
+  </div>
 
-    <!--<iframe src="http://www.google.com/"  />-->
+  <div>
+    <label>recordingGain</label>
+    <input id="recordingGain" type="number" value="1" />
+  </div>
 
-    <!--<script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>-->
-    <!--<script src="opus-recorder-master/dist/recorder.min.js"></script>-->
-    <!--<script src="Recorderjs-master/dist/recorder.js"></script>-->
-    <script src="opus-recorder-master/dist/recorder.min.js"></script>
-    <script src="app.js"></script>
-  </body>
+  <div>
+    <label>numberOfChannels</label>
+    <input id="numberOfChannels" type="number" value="1" />
+  </div>
+
+  <div>
+    <label>encoderSampleRate</label>
+    <input id="encoderSampleRate" type="number" value="48000" />
+  </div>
+
+  <div>
+    <label>encoderBitRate</label>
+    <input id="encoderBitRate" type="number" value="" />
+  </div>
+
+  <div>
+    <label>encoderApplication</label>
+    <input id="encoderApplication" type="number" value="" />
+  </div>
+
+  <div>
+    <label>encoderComplexity</label>
+    <input id="encoderComplexity" type="number" value="" />
+  </div>
+
+  <div>
+    <button id="init">Init recorder with options</button>
+  </div>
+
+  <h2>Recorder Commands</h2>
+  <button id="start" disabled>Start</button>
+  <button id="pause" disabled>Pause</button>
+  <button id="resume" disabled>Resume</button>
+  <button id="stopButton" disabled>Stop</button>
+  <button id="closeButton" disabled>Close</button>
+
+  <h2>Recordings</h2>
+  <ul id="recordingslist"></ul>
+
+  <h2>Log</h2>
+  <pre id="log"></pre>
+
+  <script>
+    function screenLogger(text, data) {
+      log.innerHTML += "\n" + text + " " + (data || '');
+    }
+
+    if (!Recorder.isRecordingSupported()) {
+      screenLogger("Recording features are not supported in your browser.");
+    }
+
+    else {
+      init.addEventListener( "click", function(){
+      // (async function test() {
+        init.disabled = true;
+        start.disabled = false;
+        monitorGain.disabled = true;
+        recordingGain.disabled = true;
+        numberOfChannels.disabled = true;
+        encoderBitRate.disabled = true;
+        encoderSampleRate.disabled = true;
+        closeButton.disabled = false;
+        encoderApplication.disabled = true;
+        encoderComplexity.disabled = true;
+
+        // const AudioContext = window.AudioContext || window.webkitAudioContext;
+        // const sourceNode = await navigator.mediaDevices.getUserMedia({ audio : true }).then( ( stream ) => {
+        //   const context = new AudioContext();
+        //   return context.createMediaStreamSource( stream );
+        // });
+
+        var options = {
+          monitorGain: parseInt(monitorGain.value, 10),
+          recordingGain: parseInt(recordingGain.value, 10),
+          numberOfChannels: parseInt(numberOfChannels.value, 10),
+          encoderSampleRate: parseInt(encoderSampleRate.value, 10),
+          encoderPath: "../dist/encoderWorker.min.js"
+          // sourceNode: sourceNode
+        };
+
+        if (encoderBitRate.value) {
+          Object.assign(options, { encoderBitRate: parseInt(encoderBitRate.value,10) });
+        }
+
+        if (encoderApplication.value) {
+          Object.assign(options, { encoderApplication: parseInt(encoderApplication.value,10) });
+        }
+
+        if (encoderComplexity.value) {
+          Object.assign(options, { encoderComplexity: parseInt(encoderComplexity.value,10) });
+        }
+
+        var recorder = new Recorder(options);
+
+        var recorderPause = function(){ recorder.pause(); };
+        var recorderStop = function(){ recorder.stop(); };
+        var recorderResume = function(){ recorder.resume(); };
+        var recorderStart = function(){
+          recorder.start().catch(function(e){
+            screenLogger('Error encountered:', e.message );
+          });
+        };
+        var recorderClose = function(){
+          screenLogger('Recorder is closed');
+          recorder.close();
+          init.disabled = false;
+
+          start.disabled = true;
+          pause.disabled = true;
+          stopButton.disabled = true;
+          closeButton.disabled = true;
+
+          monitorGain.disabled = false;
+          recordingGain.disabled = false;
+          numberOfChannels.disabled = false;
+          encoderBitRate.disabled = false;
+          encoderSampleRate.disabled = false
+          encoderApplication.disabled = false;
+          encoderComplexity.disabled = false;
+
+          resume.removeEventListener("click", recorderResume);
+          stopButton.removeEventListener("click", recorderStop);
+          pause.removeEventListener("click", recorderPause);
+          start.removeEventListener("click", recorderStart);
+          closeButton.removeEventListener("click", recorderClose);
+        }
+
+        pause.addEventListener( "click", recorderPause);
+        resume.addEventListener( "click", recorderResume);
+        stopButton.addEventListener( "click", recorderStop);
+        start.addEventListener( "click", recorderStart);
+        closeButton.addEventListener( "click", recorderClose);
+
+        recorder.onstart = function(e){
+          screenLogger('Recorder is started');
+          start.disabled = resume.disabled = true;
+          pause.disabled = stopButton.disabled = false;
+        };
+
+        recorder.onstop = function(e){
+          screenLogger('Recorder is stopped');
+          start.disabled = false;
+          pause.disabled = resume.disabled = stopButton.disabled = true;
+        };
+
+        recorder.onpause = function(e){
+          screenLogger('Recorder is paused');
+          pause.disabled = start.disabled = true;
+          resume.disabled = stopButton.disabled = false;
+        };
+
+        recorder.onresume = function(e){
+          screenLogger('Recorder is resuming');
+          start.disabled = resume.disabled = true;
+          pause.disabled = stopButton.disabled = false;
+        };
+
+        recorder.ondataavailable = function( typedArray ){
+          screenLogger('Data received');
+          var dataBlob = new Blob( [typedArray], { type: 'audio/ogg' } );
+          var fileName = new Date().toISOString() + ".opus";
+          var url = URL.createObjectURL( dataBlob );
+
+          var audio = document.createElement('audio');
+          audio.controls = true;
+          audio.src = url;
+
+          var link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          link.innerHTML = link.download;
+
+          var li = document.createElement('li');
+          li.appendChild(link);
+          li.appendChild(audio);
+
+          recordingslist.appendChild(li);
+        };
+      });
+      // })();
+    }
+
+  </script>
+</body>
 </html>
