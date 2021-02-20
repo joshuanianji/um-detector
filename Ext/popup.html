@@ -2,22 +2,15 @@
 
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Ogg Opus Encoder Example</title>
+  <title>Voice Recorder</title>
   <script src="opus-recorder-master/dist/recorder.min.js"></script>
-  <style type='text/css'>
-    ul { list-style: none; }
-    li { margin: 1em; }
-    audio { display: block; }
-  </style>
 </head>
 <body>
 
-  <h1>Encoder example</h1>
-  <p>Before you enable monitoring, make sure to either plug in headphones or turn the volume down.</p>
-  <p>This ogg opus implementation does not support more than 2 channels.</p>
+  <h1>Voice Recorder</h1>
+  <p>Hit start to start recording, and stop to stop recording.</p>
+  <p>Click the link below to download the .wav file.</p>
 
-  <h2>Recorder Commands</h2>
   <button id="start" disabled>Start</button>
   <button id="pause" disabled>Pause</button>
   <button id="resume" disabled>Resume</button>
@@ -32,20 +25,13 @@
     }
 
     else {
-      //init.addEventListener( "click", function(){
-      // (async function test() {
-        //init.disabled = true;
         start.disabled = false;
-        //encoderBitRate.disabled = true;
-        //closeButton.disabled = false;
-        //encoderApplication.disabled = true;
-        //encoderComplexity.disabled = true;
 
         var options = {
-          monitorGain:  0, //parseInt(monitorGain.value, 10),
-          recordingGain: 1,//  parseInt(recordingGain.value, 10),
-          numberOfChannels: 1, //parseInt(numberOfChannels.value, 10),
-          encoderSampleRate: 16000, //parseInt(encoderSampleRate.value, 10),
+          monitorGain:  0,
+          recordingGain: 1,
+          numberOfChannels: 1,
+          encoderSampleRate: 16000,
           encoderPath: "opus-recorder-master/dist/encoderWorker.min.js"
           // sourceNode: sourceNode
         };
@@ -60,34 +46,11 @@
             console.log('Error encountered:', e.message );
           });
         };
-        /*
-        var recorderClose = function(){
-          console.log('Recorder is closed');
-          recorder.close();
-          init.disabled = false;
-
-          start.disabled = true;
-          pause.disabled = true;
-          stopButton.disabled = true;
-          closeButton.disabled = true;
-
-          encoderBitRate.disabled = false;
-          encoderApplication.disabled = false;
-          encoderComplexity.disabled = false;
-
-          resume.removeEventListener("click", recorderResume);
-          stopButton.removeEventListener("click", recorderStop);
-          pause.removeEventListener("click", recorderPause);
-          start.removeEventListener("click", recorderStart);
-          closeButton.removeEventListener("click", recorderClose);
-        }
-        */
 
         pause.addEventListener( "click", recorderPause);
         resume.addEventListener( "click", recorderResume);
         stopButton.addEventListener( "click", recorderStop);
         start.addEventListener( "click", recorderStart);
-        //closeButton.addEventListener( "click", recorderClose);
 
         recorder.onstart = function(e){
           console.log('Recorder is started');
@@ -134,7 +97,6 @@
 
           recordingslist.appendChild(li);
         };
-      //});
     }
 
   </script>
