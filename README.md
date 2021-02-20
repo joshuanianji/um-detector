@@ -6,7 +6,7 @@ A filler word detector based on this [Public Speaking Feedback tool](https://git
 
 ### Setup and Python environment
 
-We only need to set up pocketsphinx for the actual voice analysis; there are optional dependencies if you want to record autio using the `utils.py`.
+We only need to set up pocketsphinx for the actual voice analysis; there are optional dependencies if you want to record audio using the `utils.py`.
 
 1. Make sure you have [`pyenv`](https://opensource.com/article/20/4/pyenv) installed and working.
 2. Install python `3.5.10` by `pyenv install 3.5.10` (this might take a while).
@@ -18,5 +18,5 @@ We only need to set up pocketsphinx for the actual voice analysis; there are opt
 8. Test everything out by running `python speech_to_text.py uh_1min_1.wav`.
 
 
-If you want to use `utils.py`, run `pip install PyAudio`, but you'll have to make sure you have [PortAudio](http://files.portaudio.com/download.html) installed as well; I just used `brew` since I'm on a mac.
+If you want to use `utils.py`, run `pip install PyAudio`, but you'll have to make sure you have [PortAudio](http://files.portaudio.com/download.html) installed as well; I just used `brew` since I'm on a mac. Also note that VSCode [does not record audio correctly without some weird setup](https://github.com/MicrosoftDocs/live-share/issues/3254), so you might have to use your computer's native terminal application.
 
