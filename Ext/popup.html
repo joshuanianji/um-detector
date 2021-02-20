@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>INSERT NAME</title>
+    <!--<script type="module" src="modules.js"></script>-->
+    <script src="opus-recorder-master/dist/recorder.min.js"></script>
+    <script src="popup.js"></script>
+    <link rel="stylesheet" href="style.css">
+
+    <meta name="viewport">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src https://*; child-src 'none';">
+
+    <!--<script src="app.js"></script>-->
+  </head>
+  <body>
+    <h1>INSERT NAME</h1>
+    <p>Hit the button below to record!</p>
+    <div id="controls">
+      <button id="record">Record</button>
+      <button id="stop" disabled>Stop</button>
+      <button id="download" disabled>Download</button>
+    </div>
+
+    <div id="formats">Format: start recording to see sample rate</div>
+  	<p><strong>Recordings:</strong></p>
+  	<ol id="recordingsList"></ol>
+
+    <!--<iframe src="http://www.google.com/"  />-->
+
+    <!--<script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>-->
+    <!--<script src="opus-recorder-master/dist/recorder.min.js"></script>-->
+    <!--<script src="Recorderjs-master/dist/recorder.js"></script>-->
+    <script src="opus-recorder-master/dist/recorder.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
