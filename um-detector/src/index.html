@@ -179,6 +179,44 @@
                         .catch(err => {
                             alert(err);
                         });
+
+                    /* FAKE FETCH FOR MACS
+                    fetch(`http://35.223.82.142:9090/fake`)
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        else throw Error(`Server returned ${response.status}: ${response.statusText}`)
+                    })
+                    .then(data => {
+                        console.log(data);
+                        console.log(store.store);
+
+                        console.log("Updating global stats:")
+                        const old_count = store.get('num_calls');
+                        store.set('num_calls', old_count + 1);
+
+                        const old_avg_speak_time = store.get('avg_speak_time');
+                        const new_speak_time = new_avg(old_avg_speak_time, data.rate_of_speech, old_count);
+                        store.set('avg_speak_time', new_speak_time);
+
+                        // pronounciation score
+                        const old_avg_p_score = store.get('avg_pronounciation_score');
+                        const new_p_score = new_avg(old_avg_p_score, data.pronounciation_score, old_count);
+                        store.set('avg_pronounciation_score', new_p_score);
+
+                        const old_pauses = store.get('avg_num_pauses');
+                        const new_pauses = new_avg(old_pauses, data.number_of_pauses, old_count);
+                        store.set('avg_num_pauses', new_pauses);
+
+                        const old_rate = store.get('avg_rate_of_speech');
+                        const new_rate = new_avg(old_rate, data.articulation_rate, old_count);
+                        store.set('avg_rate_of_speech', new_rate);
+
+                        updateText();
+                    })
+                    .catch(err => {
+                        alert(err);
+                    });
+                    */
                 }
 
                 const new_avg = (old, new_, count) =>
