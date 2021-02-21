@@ -1,0 +1,31 @@
+body {
+  min-width: 200px;
+  min-height: 300px;
+  word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+
+
+
+red {
+	color: red;
+}
+audio {
+  display: block;
+  width: 100%;
+  margin-top: 0.2rem;
+}
+
+li {
+  list-style: none;
+  margin-bottom: 1rem;
+}
+
+#formats {
+  margin-top: 0.5rem;
+  font-size: 80%;
+}
+
+#recordingsList{
+	max-width: 28em;
+}
