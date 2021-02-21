@@ -41,11 +41,11 @@
 
     <script>
       const { writeFile } = require('fs');
+      const store = require('./store')
+
       if (!Recorder.isRecordingSupported()) {
         console.log("Recording features are not supported in your browser.");
-      }
-
-      else {
+      } else {
         start.disabled = false;
 
         var options = {
@@ -115,185 +115,16 @@
             formData.append('file', file);
             fetch(`http://35.223.82.142:9090/upload`, {method:"POST", body:formData})
                 .then(response => {
-                    if (response.ok) return response;
+                    if (response.ok) return response.json();
                     else throw Error(`Server returned ${response.status}: ${response.statusText}`)
                 })
-                .then(
-                  response => console.log(response.text())
-                  )
+                .then(data => console.log(data))
                 .catch(err => {
                     alert(err);
                 });
-          // var arrayBuffer, uint8Array;
-          //   var fileReader = new FileReader();
-          //   fileReader.onload = function() {
-          //       arrayBuffer = this.result;
-          //       uint8Array  = new Uint8Array(arrayBuffer);
-          //   };
-          //   const buffer = fileReader.readAsArrayBuffer(blob);
-          // const { filePath } = async function save() {
-          //   await dialog.showSaveDialog({
-          //   buttonLabel: 'Save Recording',
-          //   defaultPath: `um-detector-${Date.now()}.wav`
-          // })};
-
-          // console.log(filePath);
-
-          // writeFile(filePath, buffer, () => console.log('audio saved successfully'));
-
-          // postData(`http://35.223.82.142:9090/upload`, blob).then(data => {
-          //   console.log(data);
-          // })
-
-          // fetch(`http://35.223.82.142:9090/upload`, {
-          //   method: "POST",
-          //   body: blob
-          // }).then(response => {
-          //   if (response.ok) return response;
-          //   else throw Error(`Server returned ${response.status}: ${response.statusText}`)
-          // })
-          //   .then(response => console.log(response.text()))
-          //   .catch(err => {
-          //     alert(err);
-          //   });
-
-          //https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-          // Example POST method implementation:
-          // var formData = new FormData();
-          //  formData.append('file', blob);
-          // async function postData(url = '', data = {}) {
-          //   // Default options are marked with *
-          //   const response = await fetch(url, {
-          //     method: 'POST', // *GET, POST, PUT, DELETE, etc.
-          //     mode: 'cors', // no-cors, *cors, same-origin
-          //     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-          //     credentials: 'same-origin', // include, *same-origin, omit
-          //     headers: {
-          //       'Content-Type': 'application/json'
-          //       // 'Content-Type': 'application/x-www-form-urlencoded',
-          //     },
-          //     redirect: 'follow', // manual, *follow, error
-          //     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          //     body: blob
-          //     //  body: JSON.stringify(data) // body data type must match "Content-Type" header
-          //   });
-          //   return response; // parses JSON response into native JavaScript objects
-          }
-
-          // const result = postData('http://35.223.82.142:9090/upload', { file: file })
-          //   .then(data => {
-          //     console.log(data); // JSON data parsed by `data.json()` call
-          //   });
-          // console.log(result);
-
-
-
-          // const blob = new Blob(recordedChunks, {
-          //   type: 'audio/wav'
-          // });
-          // const buffer = Buffer.from(await blob.arrayBuffer());
-          // const { filePath } = await dialog.showSaveDialog({
-          //   buttonLabel: 'Save Recording',
-          //   defaultPath: `um-detector-${Date.now()}.wav`
-          // });
-
-          // console.log(filePath);
-
-          // writeFile(filePath, buffer, () => console.log('audio saved successfully'));
-
-          // let response = async () => {
-          //   const result = await fetch('http://localhost:5000/upload', {
-          //     method: "POST",
-          //     body: blob
-          //   })
-          //   console.log(result.message)
-          //   return result;
-          // }
-
-
-          // let result = async () => {
-          //   const results = await response.json();
-          //   console.log(results.message);
-          //   return results;
-          // }
-          // alert(result.message);
-
-
-          // async function postData(url, data) {
-          //   // Default options are marked with *
-          //   const response = await fetch(url, {
-          //     method: 'POST', // *GET, POST, PUT, DELETE, etc.
-          //     headers
-          //     body: "Hello!" // body data type must match "Content-Type" header
-          //   });
-          //   console.log(response.message);
-          //   return response.json; // parses JSON response into native JavaScript objects
-          // }
-          // var fileName = new Date().toISOString() + ".wav";
-          // // const buffer = Buffer.from(await blob.arrayBuffer());
-          // // const { filePath } = await dialog.showSaveDialog({
-          // //   buttonLabel: 'Save Recording',
-          // //   defaultPath: `um-detector-${Date.now()}.wav`
-          // // });
-          // localStorage.setItem(fileName, JSON.stringify(dataBlob))
-          // const filePath = `um-detector-${Date.now()}.wav`;
-          // // console.log(filePath);
-
-          // writeFile(filePath, dataBlob, () => {
-          //   console.log('audio saved successfully');
-          //   var xhr = new XMLHttpRequest();
-          //   xhr.onload = function (e) {
-          //     if (this.readyState === 4) {
-          //       console.log("Server returned: ", e.target.responseText, this.responseText);
-          //     }
-          //     console.log(this.status);
-          //   };
-          //   xhr.open("POST", filePath, true)
-          //   xhr.send(filePath);
-          // })
-
-          // add file to Firebase storage
-          //var storageRef = firebase.storage().ref();
-          //var audioRef = storageRef.child(fileName);
-          //audioRef.put(dataBlob).then((snapshot) => {
-          //  console.log('Upload successful');
-          //});
-
-
-          //var upload = document.createElement('a');
-          //upload.href="#";
-          //upload.innerHTML = "Upload";
-          //upload.addEventListener("click", function(event){
-          // var xhr=new XMLHttpRequest();
-          // xhr.onload=function(e) {
-          //     if(this.readyState === 4) {
-          //         console.log("Server returned: ",e.target.responseText, this.responseText);
-          //     }
-          //     console.log(this.status);
-          // };
-          // // var fd=new FormData();
-          // // fd.append("audio_data", dataBlob, fileName);
-          // // const file = 
-          // // console.log(fd.entries());
-          // // xhr.open("POST","upload.php",true);
-          // xhr.open("POST", JSON.stringify(blob), true)
-          // xhr.send();
-
-
-          // var newxhr = new XMLHttpRequest;
-          // newxhr.onload=function(e) {
-          //   if(this.readyState === 4) {
-          //       console.log("Server returned: ",e.target.responseText);
-          //   }
-          // };
-          // newxhr.open("GET", fileName, true);
-          // newxhr.send(null);
-          //});
-          //li.appendChild(document.createTextNode (" "));//add a space in between
-          //li.appendChild(upload);//add the upload link to li
+            }
 
         };
-      
 
     </script>
 
@@ -319,35 +150,3 @@
 </body>
 
 </html>
-
-
-<!-- <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
-    />
-    <link rel="stylesheet" href="index.css">
-
-    <script defer src="render.js"></script>
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-
-    <video></video>
-
-    <button id="startButton" class="button is-primary">Start Recording</button>
-    <button id="stopButton" class="button is-warning">Stop Recording</button>
-
-    <hr />
-
-    <button id="getAudioButton" class="button is-text">
-      Choose an Audio Source
-    </button>
-
-  </body>
-</html> -->
