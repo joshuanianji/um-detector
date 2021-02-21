@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
   <title>Voice Recorder</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
   <link rel="stylesheet" href="index.css">
   <script src="./dist/recorder.min.js"></script>
   <script src="recorder.min.js"></script>
@@ -26,6 +27,7 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 </head>
+
 <body>
 
   <div class="box">
@@ -38,67 +40,68 @@
     <button id="stopButton" class="button is-danger is-small" disabled>Stop</button>
 
     <script>
+      const { writeFile } = require('fs');
       if (!Recorder.isRecordingSupported()) {
         console.log("Recording features are not supported in your browser.");
       }
 
       else {
+        start.disabled = false;
+
+        var options = {
+          monitorGain: 0,
+          recordingGain: 1,
+          numberOfChannels: 1,
+          encoderSampleRate: 16000,
+          wavBitDepth: 16,
+          encoderPath: "waveWorker.min.js"
+          // sourceNode: sourceNode
+        };
+
+        var recorder = new Recorder(options);
+
+        var recorderPause = function () { recorder.pause(); };
+        var recorderStop = function () { recorder.stop(); };
+        var recorderResume = function () { recorder.resume(); };
+        var recorderStart = function () {
+          recorder.start().catch(function (e) {
+            console.log('Error encountered:', e.message);
+          });
+        };
+
+        pause.addEventListener("click", recorderPause);
+        resume.addEventListener("click", recorderResume);
+        stopButton.addEventListener("click", recorderStop);
+        start.addEventListener("click", recorderStart);
+
+        recorder.onstart = function (e) {
+          console.log('Recorder is started');
+          start.disabled = resume.disabled = true;
+          pause.disabled = stopButton.disabled = false;
+        };
+
+        recorder.onstop = function (e) {
+          console.log('Recorder is stopped');
           start.disabled = false;
+          pause.disabled = resume.disabled = stopButton.disabled = true;
+        };
 
-          var options = {
-            monitorGain:  0,
-            recordingGain: 1,
-            numberOfChannels: 1,
-            encoderSampleRate: 16000,
-            wavBitDepth: 16,
-            encoderPath: "waveWorker.min.js"
-            // sourceNode: sourceNode
-          };
+        recorder.onpause = function (e) {
+          console.log('Recorder is paused');
+          pause.disabled = start.disabled = true;
+          resume.disabled = stopButton.disabled = false;
+        };
 
-          var recorder = new Recorder(options);
+        recorder.onresume = function (e) {
+          console.log('Recorder is resuming');
+          start.disabled = resume.disabled = true;
+          pause.disabled = stopButton.disabled = false;
+        };
 
-          var recorderPause = function(){ recorder.pause(); };
-          var recorderStop = function(){ recorder.stop(); };
-          var recorderResume = function(){ recorder.resume(); };
-          var recorderStart = function(){
-            recorder.start().catch(function(e){
-              console.log('Error encountered:', e.message );
-            });
-          };
-
-          pause.addEventListener( "click", recorderPause);
-          resume.addEventListener( "click", recorderResume);
-          stopButton.addEventListener( "click", recorderStop);
-          start.addEventListener( "click", recorderStart);
-
-          recorder.onstart = function(e){
-            console.log('Recorder is started');
-            start.disabled = resume.disabled = true;
-            pause.disabled = stopButton.disabled = false;
-          };
-
-          recorder.onstop = function(e){
-            console.log('Recorder is stopped');
-            start.disabled = false;
-            pause.disabled = resume.disabled = stopButton.disabled = true;
-          };
-
-          recorder.onpause = function(e){
-            console.log('Recorder is paused');
-            pause.disabled = start.disabled = true;
-            resume.disabled = stopButton.disabled = false;
-          };
-
-          recorder.onresume = function(e){
-            console.log('Recorder is resuming');
-            start.disabled = resume.disabled = true;
-            pause.disabled = stopButton.disabled = false;
-          };
-
-          recorder.ondataavailable = function( typedArray ){
+        recorder.ondataavailable = function( typedArray ){
             console.log('Data received');
             var dataBlob = new Blob( [typedArray], { type: 'audio/wav' } );
-            var fileName = new Date().toISOString() + ".wav";
+            var fileName = new Date().getTime() + ".wav";
 
             // add file to Firebase storage
             //var storageRef = firebase.storage().ref();
@@ -106,43 +109,199 @@
             //audioRef.put(dataBlob).then((snapshot) => {
             //  console.log('Upload successful');
             //});
+            var file = new File([dataBlob], fileName);
+
+            var formData = new FormData();
+            formData.append('file', file);
+            fetch(`http://35.223.82.142:9090/upload`, {method:"POST", body:formData})
+                .then(response => {
+                    if (response.ok) return response;
+                    else throw Error(`Server returned ${response.status}: ${response.statusText}`)
+                })
+                .then(
+                  response => console.log(response.text())
+                  )
+                .catch(err => {
+                    alert(err);
+                });
+          // var arrayBuffer, uint8Array;
+          //   var fileReader = new FileReader();
+          //   fileReader.onload = function() {
+          //       arrayBuffer = this.result;
+          //       uint8Array  = new Uint8Array(arrayBuffer);
+          //   };
+          //   const buffer = fileReader.readAsArrayBuffer(blob);
+          // const { filePath } = async function save() {
+          //   await dialog.showSaveDialog({
+          //   buttonLabel: 'Save Recording',
+          //   defaultPath: `um-detector-${Date.now()}.wav`
+          // })};
+
+          // console.log(filePath);
+
+          // writeFile(filePath, buffer, () => console.log('audio saved successfully'));
+
+          // postData(`http://35.223.82.142:9090/upload`, blob).then(data => {
+          //   console.log(data);
+          // })
+
+          // fetch(`http://35.223.82.142:9090/upload`, {
+          //   method: "POST",
+          //   body: blob
+          // }).then(response => {
+          //   if (response.ok) return response;
+          //   else throw Error(`Server returned ${response.status}: ${response.statusText}`)
+          // })
+          //   .then(response => console.log(response.text()))
+          //   .catch(err => {
+          //     alert(err);
+          //   });
+
+          //https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+          // Example POST method implementation:
+          // var formData = new FormData();
+          //  formData.append('file', blob);
+          // async function postData(url = '', data = {}) {
+          //   // Default options are marked with *
+          //   const response = await fetch(url, {
+          //     method: 'POST', // *GET, POST, PUT, DELETE, etc.
+          //     mode: 'cors', // no-cors, *cors, same-origin
+          //     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+          //     credentials: 'same-origin', // include, *same-origin, omit
+          //     headers: {
+          //       'Content-Type': 'application/json'
+          //       // 'Content-Type': 'application/x-www-form-urlencoded',
+          //     },
+          //     redirect: 'follow', // manual, *follow, error
+          //     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          //     body: blob
+          //     //  body: JSON.stringify(data) // body data type must match "Content-Type" header
+          //   });
+          //   return response; // parses JSON response into native JavaScript objects
+          }
+
+          // const result = postData('http://35.223.82.142:9090/upload', { file: file })
+          //   .then(data => {
+          //     console.log(data); // JSON data parsed by `data.json()` call
+          //   });
+          // console.log(result);
 
 
-            //var upload = document.createElement('a');
-          	//upload.href="#";
-          	//upload.innerHTML = "Upload";
-          	//upload.addEventListener("click", function(event){
-      		  var xhr=new XMLHttpRequest();
-      		  xhr.onload=function(e) {
-      		      if(this.readyState === 4) {
-      		          console.log("Server returned: ",e.target.responseText, this.responseText);
-      		      }
-                console.log(this.status);
-      		  };
-      		  var fd=new FormData();
-      		  fd.append("audio_data", dataBlob, fileName);
-            console.log(fd.entries());
-      		  //xhr.open("POST","upload.php",true);
-            xhr.open("POST", "upload.php", true)
-      		  xhr.send(fd);
+
+          // const blob = new Blob(recordedChunks, {
+          //   type: 'audio/wav'
+          // });
+          // const buffer = Buffer.from(await blob.arrayBuffer());
+          // const { filePath } = await dialog.showSaveDialog({
+          //   buttonLabel: 'Save Recording',
+          //   defaultPath: `um-detector-${Date.now()}.wav`
+          // });
+
+          // console.log(filePath);
+
+          // writeFile(filePath, buffer, () => console.log('audio saved successfully'));
+
+          // let response = async () => {
+          //   const result = await fetch('http://localhost:5000/upload', {
+          //     method: "POST",
+          //     body: blob
+          //   })
+          //   console.log(result.message)
+          //   return result;
+          // }
 
 
-            var newxhr = new XMLHttpRequest;
-            newxhr.onload=function(e) {
-              if(this.readyState === 4) {
-                  console.log("Server returned: ",e.target.responseText);
-              }
-            };
-            newxhr.open("GET", fileName, true);
-            newxhr.send(null);
-          	//});
-          	//li.appendChild(document.createTextNode (" "));//add a space in between
-          	//li.appendChild(upload);//add the upload link to li
+          // let result = async () => {
+          //   const results = await response.json();
+          //   console.log(results.message);
+          //   return results;
+          // }
+          // alert(result.message);
 
-          };
-      }
+
+          // async function postData(url, data) {
+          //   // Default options are marked with *
+          //   const response = await fetch(url, {
+          //     method: 'POST', // *GET, POST, PUT, DELETE, etc.
+          //     headers
+          //     body: "Hello!" // body data type must match "Content-Type" header
+          //   });
+          //   console.log(response.message);
+          //   return response.json; // parses JSON response into native JavaScript objects
+          // }
+          // var fileName = new Date().toISOString() + ".wav";
+          // // const buffer = Buffer.from(await blob.arrayBuffer());
+          // // const { filePath } = await dialog.showSaveDialog({
+          // //   buttonLabel: 'Save Recording',
+          // //   defaultPath: `um-detector-${Date.now()}.wav`
+          // // });
+          // localStorage.setItem(fileName, JSON.stringify(dataBlob))
+          // const filePath = `um-detector-${Date.now()}.wav`;
+          // // console.log(filePath);
+
+          // writeFile(filePath, dataBlob, () => {
+          //   console.log('audio saved successfully');
+          //   var xhr = new XMLHttpRequest();
+          //   xhr.onload = function (e) {
+          //     if (this.readyState === 4) {
+          //       console.log("Server returned: ", e.target.responseText, this.responseText);
+          //     }
+          //     console.log(this.status);
+          //   };
+          //   xhr.open("POST", filePath, true)
+          //   xhr.send(filePath);
+          // })
+
+          // add file to Firebase storage
+          //var storageRef = firebase.storage().ref();
+          //var audioRef = storageRef.child(fileName);
+          //audioRef.put(dataBlob).then((snapshot) => {
+          //  console.log('Upload successful');
+          //});
+
+
+          //var upload = document.createElement('a');
+          //upload.href="#";
+          //upload.innerHTML = "Upload";
+          //upload.addEventListener("click", function(event){
+          // var xhr=new XMLHttpRequest();
+          // xhr.onload=function(e) {
+          //     if(this.readyState === 4) {
+          //         console.log("Server returned: ",e.target.responseText, this.responseText);
+          //     }
+          //     console.log(this.status);
+          // };
+          // // var fd=new FormData();
+          // // fd.append("audio_data", dataBlob, fileName);
+          // // const file = 
+          // // console.log(fd.entries());
+          // // xhr.open("POST","upload.php",true);
+          // xhr.open("POST", JSON.stringify(blob), true)
+          // xhr.send();
+
+
+          // var newxhr = new XMLHttpRequest;
+          // newxhr.onload=function(e) {
+          //   if(this.readyState === 4) {
+          //       console.log("Server returned: ",e.target.responseText);
+          //   }
+          // };
+          // newxhr.open("GET", fileName, true);
+          // newxhr.send(null);
+          //});
+          //li.appendChild(document.createTextNode (" "));//add a space in between
+          //li.appendChild(upload);//add the upload link to li
+
+        };
+      
 
     </script>
+
+    <form method="post" enctype="multipart/form-data" action="http://35.223.82.142:9090/upload">
+      <input type="file" name="file">
+      <input type="submit" value="Upload">
+    </form>
+
   </div>
 
   <div class="box">
@@ -150,14 +309,21 @@
     <input id="url" class="is-success is-rounded" />
     <button id="submitUrl">Submit</button>
     <script>
-      submitUrl.addEventListener('click', function(){
+      submitUrl.addEventListener('click', function () {
         iframe.src = url.value;
+        iframe.hidden = false;
       })
     </script>
     <iframe id="iframe" hidden></iframe>
+
+    <a href="./statistics.html">
+      <button id="viewStatsButton">View Statistics</button>
+    </a>
+
   </div>
 
 </body>
+
 </html>
 
 
