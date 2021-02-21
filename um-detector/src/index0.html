@@ -3,9 +3,6 @@
 <html>
 <head>
   <title>Voice Recorder</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"/>
-  <link rel="stylesheet" href="index.css">
-  <script src="./dist/recorder.min.js"></script>
   <script src="recorder.min.js"></script>
 
   <script src="https://www.gstatic.com/firebasejs/8.2.8/firebase-app.js"></script>
@@ -30,6 +27,7 @@
 
   <h1>Voice Recorder</h1>
   <p>Hit start to start recording, and stop to stop recording.</p>
+  <p>Click the link below to download the .wav file.</p>
 
   <button id="start" disabled>Start</button>
   <button id="pause" disabled>Pause</button>
@@ -40,7 +38,6 @@
     if (!Recorder.isRecordingSupported()) {
       console.log("Recording features are not supported in your browser.");
     }
-
     else {
         start.disabled = false;
 
@@ -51,7 +48,6 @@
           encoderSampleRate: 16000,
           wavBitDepth: 16,
           encoderPath: "waveWorker.min.js"
-          // sourceNode: sourceNode
         };
 
         var recorder = new Recorder(options);
@@ -110,48 +106,5 @@
     }
 
   </script>
-
-  <h1>Enter your video call link here:</h1>
-  <input id="url">
-  <button id="submitUrl">Submit</button>
-  <script>
-    submitUrl.addEventListener('click', function(){
-      iframe.src = url.value;
-    })
-  </script>
-  <iframe id="iframe" hidden></iframe>
-
 </body>
 </html>
-
-
-<!-- <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
-    />
-    <link rel="stylesheet" href="index.css">
-
-    <script defer src="render.js"></script>
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-
-    <video></video>
-
-    <button id="startButton" class="button is-primary">Start Recording</button>
-    <button id="stopButton" class="button is-warning">Stop Recording</button>
-
-    <hr />
-
-    <button id="getAudioButton" class="button is-text">
-      Choose an Audio Source
-    </button>
-
-  </body>
-</html> -->

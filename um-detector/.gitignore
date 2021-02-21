@@ -87,3 +87,9 @@ typings/
 
 # Electron-Forge
 out/
+
+
+# voice analyzer stuff
+voice-analyzer/__pycache__
+voice-analyzer/pocketsphinx-python
+voice-analyzer/venv
