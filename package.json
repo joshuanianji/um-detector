@@ -1,0 +1,22 @@
+{
+  "name": "um-detector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshuanianji/um-detector.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joshuanianji/um-detector/issues"
+  },
+  "homepage": "https://github.com/joshuanianji/um-detector#readme",
+  "dependencies": {
+    "firebase": "^8.2.9"
+  }
+}

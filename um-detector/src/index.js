@@ -14,6 +14,7 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
+      webviewTag: true,
     }
   });
 
