@@ -324,12 +324,23 @@ def mysptotal(m, p):
         z3 = np.array(z2)
         z4 = np.array(z3)[np.newaxis]
         z5 = z4.T
-        dataset = pd.DataFrame({"number_ of_syllables": z5[0, :], "number_of_pauses": z5[1, :], "rate_of_speech": z5[2, :], "articulation_rate": z5[3, :], "speaking_duration": z5[4, :],
-                                "original_duration": z5[5, :], "balance": z5[6, :], "f0_mean": z5[7, :], "f0_std": z5[8, :], "f0_median": z5[9, :], "f0_min": z5[10, :], "f0_max": z5[11, :],
-                                "f0_quantile25": z5[12, :], "f0_quan75": z5[13, :]})
-        print(dataset.T)
+        return  {"number_ of_syllables": float(z5[0, :]), 
+            "number_of_pauses": float(z5[1, :]), 
+            "rate_of_speech": float(z5[2, :]), 
+            "articulation_rate": float(z5[3, :]), 
+            "speaking_duration": float(z5[4, :]),
+            "original_duration": float(z5[5, :]), 
+            "balance": float(z5[6, :]), 
+            "f0_mean": float(z5[7, :]), 
+            "f0_std": float(z5[8, :]), 
+            "f0_median": float(z5[9, :]), 
+            "f0_min": float(z5[10, :]), 
+            "f0_max": float(z5[11, :]),
+            "f0_quantile25": float(z5[12, :]), 
+            "f0_quan75": float(z5[13, :])}
+        
     except Exception as e:
-        print("Try again the sound of the audio was not clear", e)
+        raise e
     return
 
 
@@ -350,9 +361,10 @@ def mysppron(m, p):
         db = binom.rvs(n=10, p=z4, size=10000)
         a = np.array(db)
         b = np.mean(a)*100/10
-        print("Pronunciation_posteriori_probability_score_percentage= :%.2f" % (b))
+        return b
+        # print("Pronunciation_posteriori_probability_score_percentage= :%.2f" % (b))
     except Exception as e:
-        print("Try again the sound of the audio was not clear", e)
+        raise e
     return
 
 
@@ -389,7 +401,7 @@ def myspgend(m, p):
             g = 239
             j = 5.3
         else:
-            print("Voice not recognized")
+            return { "gender": "unknown", "mood": "unknown", "p": 0, "sample": 0}
             exit()
 
         def teset(a, b, c, d):
@@ -412,23 +424,26 @@ def myspgend(m, p):
         else:
             mmm = 0.35
         if z4 > 97 and z4 <= 114:
-            print(
-                "a Male, mood of speech: Showing no emotion, normal, p-value/sample size= :%.2f" % (mmm), (nnn))
+            return { "gender": "male", "mood": "normal", "p": mmm, "sample": nnn}
+
         elif z4 > 114 and z4 <= 135:
-            print(
-                "a Male, mood of speech: Reading, p-value/sample size= :%.2f" % (mmm), (nnn))
+            return { "gender": "male", "mood": "reading", "p": mmm, "sample": nnn}
+
         elif z4 > 135 and z4 <= 163:
-            print(
-                "a Male, mood of speech: speaking passionately, p-value/sample size= :%.2f" % (mmm), (nnn))
+            return { "gender": "male", "mood": "passionate", "p": mmm, "sample": nnn}
+
         elif z4 > 163 and z4 <= 197:
-            print("a female, mood of speech: Showing no emotion, normal, p-value/sample size= :%.2f" % (mmm), (nnn))
+            return { "gender": "female", "mood": "normal", "p": mmm, "sample": nnn}
+
         elif z4 > 197 and z4 <= 226:
-            print(
-                "a female, mood of speech: Reading, p-value/sample size= :%.2f" % (mmm), (nnn))
+            return { "gender": "femake", "mood": "reading", "p": mmm, "sample": nnn}
+
         elif z4 > 226 and z4 <= 245:
-            print(
-                "a female, mood of speech: speaking passionately, p-value/sample size= :%.2f" % (mmm), (nnn))
+            return { "gender": "femake", "mood": "passionate", "p": mmm, "sample": nnn}
+
         else:
-            print("Voice not recognized")
+            return { "gender": "unknown", "mood": "unknown", "p": 0, "sample": 0}
+
     except Exception as e:
-        print("Try again the sound of the audio was not clear", e)
+        raise e
+
