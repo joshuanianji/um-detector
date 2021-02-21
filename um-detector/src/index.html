@@ -15,6 +15,7 @@
     <div class="box">
         <h1 class="title">Voice Recorder</h1>
         <p class="instructions">Hit start to start recording, pause at anytime, and stop whenever you're done.</p>
+        <p id="warning" class="has-text-danger instructions"></p>
         <div class="buttons">
             <button id="start" class="button is-success is-small" disabled>Start</button>
             <button id="pause" class="button is-secondary is-small" disabled>Pause</button>
@@ -28,6 +29,9 @@
             const store = require('./store');
             let show_global_stats = false;
             window.onload = function () {
+                if (process.platform === 'darwin') {
+                    document.getElementById('warning').innerHTML = '<strong class="has-text-danger">Warning:</strong> Macs do not support recording audio. API will be functional, but will return random data.'
+                }
                 if (!Recorder.isRecordingSupported()) {
                     console.log("Recording features are not supported in your browser.");
                 }
@@ -87,76 +91,90 @@
 
                     recorder.ondataavailable = function (typedArray) {
                         console.log('Data received');
-                        var dataBlob = new Blob([typedArray], { type: 'audio/wav' });
-                        var fileName = new Date().getTime() + ".wav";
 
-                        var file = new File([dataBlob], fileName);
+                        if (process.platform === 'darwin') {
+                            // dummy data
+                            console.log('returning fake data')
+                            fetch(`http://34.68.110.162/fake`)
+                                .then(response => {
+                                    if (response.ok) return response.json();
+                                    else throw Error(`Server returned ${response.status}: ${response.statusText}`)
+                                })
+                                .then(data => {
+                                    console.log(data);
 
-                        var formData = new FormData();
-                        var formResults;
-                        formData.append('file', file);
-                        fetch(`http://34.68.110.162/upload`, { method: "POST", body: formData })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log(data);
+                                    var returnval = '';
+                                    Object.keys(data).forEach(key => {
+                                        returnval += key.replace(/_/g, ' ') + ': ' + data[key] + '<br>';
+                                    });
+                                    document.getElementById('p').innerHTML = returnval//JSON.stringify(data.articulation_rate);//JSON.stringify(data).articulation_rate;
 
-                                var returnval = '';
-                                Object.keys(data).forEach(key => {
-                                    returnval += key.replace(/_/g, ' ') + ': ' + data[key] + '<br>';
+                                    console.log(store.store);
+                                    console.log("Updating global stats:")
+                                    const old_count = store.get('num_calls');
+                                    store.set('num_calls', old_count + 1);
+                                    const old_avg_speak_time = store.get('avg_speak_time');
+                                    const new_speak_time = new_avg(old_avg_speak_time, data.rate_of_speech, old_count);
+                                    store.set('avg_speak_time', new_speak_time);
+                                    // pronounciation score
+                                    const old_avg_p_score = store.get('avg_pronounciation_score');
+                                    const new_p_score = new_avg(old_avg_p_score, data.pronounciation_score, old_count);
+                                    store.set('avg_pronounciation_score', new_p_score);
+                                    const old_pauses = store.get('avg_num_pauses');
+                                    const new_pauses = new_avg(old_pauses, data.number_of_pauses, old_count);
+                                    store.set('avg_num_pauses', new_pauses);
+                                    const old_rate = store.get('avg_rate_of_speech');
+                                    const new_rate = new_avg(old_rate, data.articulation_rate, old_count);
+                                    store.set('avg_rate_of_speech', new_rate);
+                                    updateText();
+                                })
+                                .catch(err => {
+                                    alert(err);
                                 });
-                                document.getElementById('p').innerHTML = returnval//JSON.stringify(data.articulation_rate);//JSON.stringify(data).articulation_rate;
+                        } else {
+                            var dataBlob = new Blob([typedArray], { type: 'audio/wav' });
+                            var fileName = new Date().getTime() + ".wav";
 
-                                console.log(store.store);
-                                console.log("Updating global stats:")
-                                const old_count = store.get('num_calls');
-                                store.set('num_calls', old_count + 1);
-                                const old_avg_speak_time = store.get('avg_speak_time');
-                                const new_speak_time = new_avg(old_avg_speak_time, data.rate_of_speech, old_count);
-                                store.set('avg_speak_time', new_speak_time);
-                                // pronounciation score
-                                const old_avg_p_score = store.get('avg_pronounciation_score');
-                                const new_p_score = new_avg(old_avg_p_score, data.pronounciation_score, old_count);
-                                store.set('avg_pronounciation_score', new_p_score);
-                                const old_pauses = store.get('avg_num_pauses');
-                                const new_pauses = new_avg(old_pauses, data.number_of_pauses, old_count);
-                                store.set('avg_num_pauses', new_pauses);
-                                const old_rate = store.get('avg_rate_of_speech');
-                                const new_rate = new_avg(old_rate, data.articulation_rate, old_count);
-                                store.set('avg_rate_of_speech', new_rate);
-                                updateText();
-                            })
-                            .catch(err => {
-                                alert(err);
-                            });
-                        // fetch(`http://34.68.110.162/fake`)
-                        //     .then(response => {
-                        //         if (response.ok) return response.json();
-                        //         else throw Error(`Server returned ${response.status}: ${response.statusText}`)
-                        //     })
-                        //     .then(data => {
-                        //         console.log(data);
-                        //         console.log(store.store);
-                        //         console.log("Updating global stats:")
-                        //         const old_count = store.get('num_calls');
-                        //         store.set('num_calls', old_count + 1);
-                        //         const old_avg_speak_time = store.get('avg_speak_time');
-                        //         const new_speak_time = new_avg(old_avg_speak_time, data.rate_of_speech, old_count);
-                        //         store.set('avg_speak_time', new_speak_time);
-                        //         // pronounciation score
-                        //         const old_avg_p_score = store.get('avg_pronounciation_score');
-                        //         const new_p_score = new_avg(old_avg_p_score, data.pronounciation_score, old_count);
-                        //         store.set('avg_pronounciation_score', new_p_score);
-                        //         const old_pauses = store.get('avg_num_pauses');
-                        //         const new_pauses = new_avg(old_pauses, data.number_of_pauses, old_count);
-                        //         store.set('avg_num_pauses', new_pauses);
-                        //         const old_rate = store.get('avg_rate_of_speech');
-                        //         const new_rate = new_avg(old_rate, data.articulation_rate, old_count);
-                        //         store.set('avg_rate_of_speech', new_rate);
-                        //         updateText();
-                        //     })
-                        //     .catch(err => {
-                        //         alert(err);
-                        //     });
+                            var file = new File([dataBlob], fileName);
+
+                            var formData = new FormData();
+                            var formResults;
+                            formData.append('file', file);
+                            console.log('returning real data')
+                            fetch(`http://34.68.110.162/upload`, { method: "POST", body: formData })
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log(data);
+
+                                    var returnval = '';
+                                    Object.keys(data).forEach(key => {
+                                        returnval += key.replace(/_/g, ' ') + ': ' + data[key] + '<br>';
+                                    });
+                                    document.getElementById('p').innerHTML = returnval//JSON.stringify(data.articulation_rate);//JSON.stringify(data).articulation_rate;
+
+                                    console.log(store.store);
+                                    console.log("Updating global stats:")
+                                    const old_count = store.get('num_calls');
+                                    store.set('num_calls', old_count + 1);
+                                    const old_avg_speak_time = store.get('avg_speak_time');
+                                    const new_speak_time = new_avg(old_avg_speak_time, data.rate_of_speech, old_count);
+                                    store.set('avg_speak_time', new_speak_time);
+                                    // pronounciation score
+                                    const old_avg_p_score = store.get('avg_pronounciation_score');
+                                    const new_p_score = new_avg(old_avg_p_score, data.pronounciation_score, old_count);
+                                    store.set('avg_pronounciation_score', new_p_score);
+                                    const old_pauses = store.get('avg_num_pauses');
+                                    const new_pauses = new_avg(old_pauses, data.number_of_pauses, old_count);
+                                    store.set('avg_num_pauses', new_pauses);
+                                    const old_rate = store.get('avg_rate_of_speech');
+                                    const new_rate = new_avg(old_rate, data.articulation_rate, old_count);
+                                    store.set('avg_rate_of_speech', new_rate);
+                                    updateText();
+                                })
+                                .catch(err => {
+                                    alert(err);
+                                });
+                        }
 
                     }
 
