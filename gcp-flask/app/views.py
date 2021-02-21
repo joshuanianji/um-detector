@@ -6,7 +6,7 @@ from app.run_voice_analysis import run_voice_analysis
 
 # https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
 
-UPLOAD_FOLDER = '/audio/audio'
+UPLOAD_FOLDER = 'audio/audio'
 ALLOWED_EXTENSIONS = {'wav'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
