@@ -115,26 +115,44 @@
       		  var xhr=new XMLHttpRequest();
       		  xhr.onload=function(e) {
       		      if(this.readyState === 4) {
-      		          console.log("Server returned: ",e.target.responseText, this.responseText);
+      		          console.log("Server returned: ",e.target.responseText);
       		      }
                 console.log(this.status);
       		  };
       		  var fd=new FormData();
       		  fd.append("audio_data", dataBlob, fileName);
-            console.log(fd.entries());
+            //console.log(fd.entries());
       		  //xhr.open("POST","upload.php",true);
-            xhr.open("POST", "upload.php", true)
+            xhr.open("POST", fd, true);
+            //xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
       		  xhr.send(fd);
 
-
-            var newxhr = new XMLHttpRequest;
+            check.addEventListener('click', function(){
+              var newxhr = new XMLHttpRequest();
+              newxhr.onload=function(e) {
+                console.log('hello');
+                alert('hello');
+                //if(this.readyState === 4) {
+                    //console.log("Server returned: ",e.target.responseText);
+                //}
+                //this.open()
+              };
+              newxhr.open("GET", 'server', true);
+              newxhr.send(null);
+            });
+/*
+            var newxhr = new XMLHttpRequest();
             newxhr.onload=function(e) {
-              if(this.readyState === 4) {
-                  console.log("Server returned: ",e.target.responseText);
-              }
+              console.log('hello');
+              alert('hello');
+              //if(this.readyState === 4) {
+                  //console.log("Server returned: ",e.target.responseText);
+              //}
+              //this.open()
             };
             newxhr.open("GET", fileName, true);
             newxhr.send(null);
+*/
           	//});
           	//li.appendChild(document.createTextNode (" "));//add a space in between
           	//li.appendChild(upload);//add the upload link to li
@@ -149,12 +167,12 @@
     <h1>Enter your video call link here:</h1>
     <input id="url" class="is-success is-rounded" />
     <button id="submitUrl">Submit</button>
+    <button id="check">Check</button>
     <script>
       submitUrl.addEventListener('click', function(){
-        iframe.src = url.value;
-      })
+        MyWindow = window.open(url.value.toString(), 'MyWindow', 'width=800, height=600');
+      });
     </script>
-    <iframe id="iframe" hidden></iframe>
   </div>
 
 </body>
