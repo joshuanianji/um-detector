@@ -3,149 +3,219 @@
 <html>
 
 <head>
-  <title>Voice Recorder</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
-  <link rel="stylesheet" href="index.css">
-  <script src="./dist/recorder.min.js"></script>
-  <script src="recorder.min.js"></script>
+    <title>Voice Recorder</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
+    <link rel="stylesheet" href="index.css">
+    <script src="./dist/recorder.min.js"></script>
+    <script src="recorder.min.js"></script>
 
-  <script src="https://www.gstatic.com/firebasejs/8.2.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.2.8/firebase-storage.js"></script>
-  <script>
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    var firebaseConfig = {
-      apiKey: "AIzaSyCvMjCrKbCnF3elFFfU6nRsZcKGnaKiCz0",
-      authDomain: "um-detector-jaco.firebaseapp.com",
-      projectId: "um-detector-jaco",
-      storageBucket: "um-detector-jaco.appspot.com",
-      messagingSenderId: "505592409960",
-      appId: "1:505592409960:web:9f6af4f48b2113e66670dd",
-      measurementId: "G-1JB6Z3E6CB"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-  </script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.8/firebase-storage.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        var firebaseConfig = {
+            apiKey: "AIzaSyCvMjCrKbCnF3elFFfU6nRsZcKGnaKiCz0",
+            authDomain: "um-detector-jaco.firebaseapp.com",
+            projectId: "um-detector-jaco",
+            storageBucket: "um-detector-jaco.appspot.com",
+            messagingSenderId: "505592409960",
+            appId: "1:505592409960:web:9f6af4f48b2113e66670dd",
+            measurementId: "G-1JB6Z3E6CB"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
 </head>
 
 <body>
 
-  <div class="box">
-    <h1>Voice Recorder</h1>
-    <p>Hit start to start recording, and stop to stop recording.</p>
+    <div class="box">
+        <h1>Voice Recorder</h1>
+        <p>Hit start to start recording, and stop to stop recording.</p>
+        <div class="container buttons are-small">
+            <button id="start" class="button is-success" disabled>Start</button>
+            <button id="pause" class="button is-secondary" disabled>Pause</button>
+            <button id="resume" class="button is-secondary" disabled>Resume</button>
+            <button id="stopButton" class="button is-danger" disabled>Stop</button>
+        </div>
 
-    <button id="start" class="button is-success is-small" disabled>Start</button>
-    <button id="pause" class="button is-secondary is-small" disabled>Pause</button>
-    <button id="resume" class="button is-secondary is-small" disabled>Resume</button>
-    <button id="stopButton" class="button is-danger is-small" disabled>Stop</button>
+    </div>
+
+    <div class="box">
+        <h1>Enter your video call link here:</h1>
+        <input id="url" class="is-success is-rounded" />
+        <button id="submitUrl">Submit</button>
+        <button id="check">Check</button>
+
+
+        <a href="./statistics.html">
+            <button id="viewStatsButton">View Statistics</button>
+        </a>
+        <button id="toggleGlobalStats" class="button is-icon">Toggle Global Statistics</button>
+    </div>
+
+    <div class="box" id="globalStats" style="display:none">
+        <h1>Global Stats:</h1>
+        <p><strong>Total number of calls: </strong><span id="span__num_calls"></span></p>
+        <p><strong>Average speaking time: </strong><span id="span__avg_speak_time"></span></p>
+        <p><strong>Average pronounciation score: </strong><span id="span__avg_pronounciation_score"></span></p>
+        <p><strong>Average number of pauses: </strong><span id="span__avg_num_pauses"></span></p>
+        <p><strong>Average rate of speech: </strong><span id="span__avg_rate_of_speech"></span></p>
+        <button id="resetStats" class="button is-danger is-small">Reset Statistics</button>
+    </div>
 
     <script>
-      const { writeFile } = require('fs');
-      const store = require('./store')
+        const { writeFile } = require('fs');
+        const store = require('./store')
 
-      if (!Recorder.isRecordingSupported()) {
-        console.log("Recording features are not supported in your browser.");
-      } else {
-        start.disabled = false;
+        window.onload = function () {
+            if (!Recorder.isRecordingSupported()) {
+                console.log("Recording features are not supported in your browser.");
+            } else {
+                var show_global_stats = false;
+                start.disabled = false;
 
-        var options = {
-          monitorGain: 0,
-          recordingGain: 1,
-          numberOfChannels: 1,
-          encoderSampleRate: 16000,
-          wavBitDepth: 16,
-          encoderPath: "waveWorker.min.js"
-          // sourceNode: sourceNode
-        };
+                var options = {
+                    monitorGain: 0,
+                    recordingGain: 1,
+                    numberOfChannels: 1,
+                    encoderSampleRate: 16000,
+                    wavBitDepth: 16,
+                    encoderPath: "waveWorker.min.js"
+                    // sourceNode: sourceNode
+                };
 
-        var recorder = new Recorder(options);
+                var recorder = new Recorder(options);
 
-        var recorderPause = function () { recorder.pause(); };
-        var recorderStop = function () { recorder.stop(); };
-        var recorderResume = function () { recorder.resume(); };
-        var recorderStart = function () {
-          recorder.start().catch(function (e) {
-            console.log('Error encountered:', e.message);
-          });
-        };
+                var recorderPause = function () { recorder.pause(); };
+                var recorderStop = function () { recorder.stop(); };
+                var recorderResume = function () { recorder.resume(); };
+                var recorderStart = function () {
+                    recorder.start().catch(function (e) {
+                        console.log('Error encountered:', e.message);
+                    });
+                };
 
-        pause.addEventListener("click", recorderPause);
-        resume.addEventListener("click", recorderResume);
-        stopButton.addEventListener("click", recorderStop);
-        start.addEventListener("click", recorderStart);
-
-        recorder.onstart = function (e) {
-          console.log('Recorder is started');
-          start.disabled = resume.disabled = true;
-          pause.disabled = stopButton.disabled = false;
-        };
-
-        recorder.onstop = function (e) {
-          console.log('Recorder is stopped');
-          start.disabled = false;
-          pause.disabled = resume.disabled = stopButton.disabled = true;
-        };
-
-        recorder.onpause = function (e) {
-          console.log('Recorder is paused');
-          pause.disabled = start.disabled = true;
-          resume.disabled = stopButton.disabled = false;
-        };
-
-        recorder.onresume = function (e) {
-          console.log('Recorder is resuming');
-          start.disabled = resume.disabled = true;
-          pause.disabled = stopButton.disabled = false;
-        };
-
-        recorder.ondataavailable = function( typedArray ){
-            console.log('Data received');
-            var dataBlob = new Blob( [typedArray], { type: 'audio/wav' } );
-            var fileName = new Date().getTime() + ".wav";
-
-            // add file to Firebase storage
-            //var storageRef = firebase.storage().ref();
-            //var audioRef = storageRef.child(fileName);
-            //audioRef.put(dataBlob).then((snapshot) => {
-            //  console.log('Upload successful');
-            //});
-            var file = new File([dataBlob], fileName);
-
-            var formData = new FormData();
-            formData.append('file', file);
-            fetch(`http://35.223.82.142:9090/upload`, {method:"POST", body:formData})
-                .then(response => {
-                    if (response.ok) return response.json();
-                    else throw Error(`Server returned ${response.status}: ${response.statusText}`)
-                })
-                .then(data => console.log(data))
-                .catch(err => {
-                    alert(err);
+                pause.addEventListener("click", recorderPause);
+                resume.addEventListener("click", recorderResume);
+                stopButton.addEventListener("click", recorderStop);
+                start.addEventListener("click", recorderStart);
+                submitUrl.addEventListener('click', () => {
+                    window.open(url.value.toString(), 'MyWindow', 'width=800, height=600');
                 });
-            }
 
-        };
+                recorder.onstart = function (e) {
+                    console.log('Recorder is started');
+                    start.disabled = resume.disabled = true;
+                    pause.disabled = stopButton.disabled = false;
+                };
+
+                recorder.onstop = function (e) {
+                    console.log('Recorder is stopped');
+                    start.disabled = false;
+                    pause.disabled = resume.disabled = stopButton.disabled = true;
+                };
+
+                recorder.onpause = function (e) {
+                    console.log('Recorder is paused');
+                    pause.disabled = start.disabled = true;
+                    resume.disabled = stopButton.disabled = false;
+                };
+
+                recorder.onresume = function (e) {
+                    console.log('Recorder is resuming');
+                    start.disabled = resume.disabled = true;
+                    pause.disabled = stopButton.disabled = false;
+                };
+
+                recorder.ondataavailable = function (typedArray) {
+                    console.log('Data received');
+                    var dataBlob = new Blob([typedArray], { type: 'audio/wav' });
+                    var fileName = new Date().getTime() + ".wav";
+
+                    // add file to Firebase storage
+                    //var storageRef = firebase.storage().ref();
+                    //var audioRef = storageRef.child(fileName);
+                    //audioRef.put(dataBlob).then((snapshot) => {
+                    //  console.log('Upload successful');
+                    //});
+                    var file = new File([dataBlob], fileName);
+
+                    var formData = new FormData();
+                    formData.append('file', file);
+                    fetch(`http://35.223.82.142:9090/upload`, { method: "POST", body: formData })
+                        .then(response => {
+                            if (response.ok) return response.json();
+                            else throw Error(`Server returned ${response.status}: ${response.statusText}`)
+                        })
+                        .then(data => {
+                            console.log(data);
+                            console.log(store.store);
+
+                            console.log("Updating global stats:")
+                            const old_count = store.get('num_calls');
+                            store.set('num_calls', old_count + 1);
+
+                            const old_avg_speak_time = store.get('avg_speak_time');
+                            const new_speak_time = new_avg(old_avg_speak_time, data.rate_of_speech, old_count);
+                            store.set('avg_speak_time', new_speak_time);
+
+                            // pronounciation score
+                            const old_avg_p_score = store.get('avg_pronounciation_score');
+                            const new_p_score = new_avg(old_avg_p_score, data.pronounciation_score, old_count);
+                            store.set('avg_pronounciation_score', new_p_score);
+
+                            const old_pauses = store.get('avg_num_pauses');
+                            const new_pauses = new_avg(old_pauses, data.number_of_pauses, old_count);
+                            store.set('avg_num_pauses', new_pauses);
+
+                            const old_rate = store.get('avg_rate_of_speech');
+                            const new_rate = new_avg(old_rate, data.articulation_rate, old_count);
+                            store.set('avg_rate_of_speech', new_rate);
+
+                            updateText();
+                        })
+                        .catch(err => {
+                            alert(err);
+                        });
+                }
+
+                const new_avg = (old, new_, count) =>
+                    (old * count + new_) / (count + 1);
+
+                toggleGlobalStats.addEventListener('click', () => {
+                    if (show_global_stats) {
+                        document.getElementById('globalStats').style.display = "none";
+                    } else {
+                        document.getElementById('globalStats').style.display = "block";
+                        updateText();
+                    }
+                    show_global_stats = !show_global_stats;
+                })
+                resetStats.addEventListener('click', () => {
+                    // :clown:
+                    store.set('num_calls', 0);
+                    store.set('avg_speak_time', 0);
+                    store.set('avg_pronounciation_score', 0);
+                    store.set('avg_num_pauses', 0);
+                    store.set('avg_rate_of_speech', 0);
+                    console.log(store.store);
+                    updateText()
+                })
+
+                const updateText = () => {
+                    document.getElementById('span__num_calls').textContent = store.get('num_calls');
+                    document.getElementById('span__avg_speak_time').textContent = store.get('avg_speak_time');
+                    document.getElementById('span__avg_pronounciation_score').textContent = store.get('avg_pronounciation_score');
+                    document.getElementById('span__avg_num_pauses').textContent = store.get('avg_num_pauses');
+                    document.getElementById('span__avg_rate_of_speech').textContent = store.get('avg_rate_of_speech');
+                }
+
+            };
+        }
 
     </script>
-
-  </div>
-
-  <div class="box">
-    <h1>Enter your video call link here:</h1>
-    <input id="url" class="is-success is-rounded" />
-    <button id="submitUrl">Submit</button>
-    <button id="check">Check</button>
-    
-    <script>
-      submitUrl.addEventListener('click', function(){
-        MyWindow = window.open(url.value.toString(), 'MyWindow', 'width=800, height=600');
-      });
-    </script>
-
-    <a href="./statistics.html">
-      <button id="viewStatsButton">View Statistics</button>
-    </a>
-  </div>
 
 </body>
 
