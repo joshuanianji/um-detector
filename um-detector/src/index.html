@@ -13,13 +13,14 @@
 <body>
 
   <div class="box">
-    <h1>Voice Recorder</h1>
-    <p>Hit start to start recording, and stop to stop recording.</p>
-
+    <h1 class = "title">Voice Recorder</h1>
+    <p class = "instructions">Hit start to start recording, pause at anytime, and stop whenever you're done.</p>
+    <div class="buttons">
     <button id="start" class="button is-success is-small" disabled>Start</button>
     <button id="pause" class="button is-secondary is-small" disabled>Pause</button>
     <button id="resume" class="button is-secondary is-small" disabled>Resume</button>
     <button id="stopButton" class="button is-danger is-small" disabled>Stop</button>
+    </div>
 
     <script>
       const { writeFile } = require('fs');
@@ -90,7 +91,7 @@
             var formData = new FormData();
             var formResults;
             formData.append('file', file);
-            fetch(`http://35.223.82.142:9090/upload`, {method:"POST", body:formData})
+            fetch(`http://34.68.110.162/upload`, {method:"POST", body:formData})
               .then(response => response.json())
               .then(data => {
                 console.log(data);
@@ -147,8 +148,9 @@
 
   </script>
   <div>
-    <iframe id="iframe" src="statistics.html" hidden/>
+    <iframe id="iframe" src="statistics.html" hidden />
   </div>
+
   <script>
   console.log(iframe.arr);
   </script>
