@@ -19,4 +19,3 @@ We only need to set up pocketsphinx for the actual voice analysis; there are opt
 
 
 If you want to use `utils.py`, run `pip install PyAudio`, but you'll have to make sure you have [PortAudio](http://files.portaudio.com/download.html) installed as well; I just used `brew` since I'm on a mac. Also note that VSCode [does not record audio correctly without some weird setup](https://github.com/MicrosoftDocs/live-share/issues/3254), so you might have to use your computer's native terminal application.
-
