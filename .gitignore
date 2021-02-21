@@ -1,5 +1,5 @@
 # voice analyzer stuff
 voice-analyzer/__pycache__
 voice-analyzer/pocketsphinx-python
+um-detector/node_modules
 voice-analyzer/venv
-node_modules
