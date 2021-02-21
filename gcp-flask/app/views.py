@@ -4,6 +4,7 @@ import os
 from app import app
 from app.run_voice_analysis import run_voice_analysis
 from datetime import datetime
+import random
 
 # https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
 
@@ -16,6 +17,33 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def index():
     return 'Hello World'
 
+@app.route('/fake')
+def fake():
+    # return fake data
+    data = {
+        'number_ of_syllables': random.randint(4, 89), 
+        'number_of_pauses': random.randint(2, 5), 
+        'rate_of_speech': 1.0, 
+        'articulation_rate': 3.0, 
+        'speaking_duration': 2.7, 
+        'original_duration': 8.5, 
+        'balance': 0.3, 
+        'f0_mean': 131.39, 
+        'f0_std': 47.29, 
+        'f0_median': 126.5, 
+        'f0_min': 106.0, 
+        'f0_max': 376.0, 
+        'f0_quantile25': 112.0, 
+        'f0_quan75': 130.0,
+        'pronounciation_score': 7.003, 
+        'gender': {
+            'gender': 'male', 
+            'mood': 'reading', 
+            'p': 1.3220426369116436e-142, 
+            'sample': 5
+        }
+    }
+    return jsonify(data), 200
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
