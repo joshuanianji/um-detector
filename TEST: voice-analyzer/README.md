@@ -1,4 +1,4 @@
-# um-detector
+# Testing a voice analysis app.
 
 A filler word detector based on this [Public Speaking Feedback tool](https://github.com/wellesleynlp/elizabethhau_emilyahn-finalproject) using [Pocketsphinx](https://pypi.org/project/pocketsphinx/)
 
