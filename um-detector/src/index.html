@@ -297,29 +297,23 @@
 
     </script>
 
-    <form method="post" enctype="multipart/form-data" action="http://35.223.82.142:9090/upload">
-      <input type="file" name="file">
-      <input type="submit" value="Upload">
-    </form>
-
   </div>
 
   <div class="box">
     <h1>Enter your video call link here:</h1>
     <input id="url" class="is-success is-rounded" />
     <button id="submitUrl">Submit</button>
+    <button id="check">Check</button>
+    
     <script>
-      submitUrl.addEventListener('click', function () {
-        iframe.src = url.value;
-        iframe.hidden = false;
-      })
+      submitUrl.addEventListener('click', function(){
+        MyWindow = window.open(url.value.toString(), 'MyWindow', 'width=800, height=600');
+      });
     </script>
-    <iframe id="iframe" hidden></iframe>
 
     <a href="./statistics.html">
       <button id="viewStatsButton">View Statistics</button>
     </a>
-
   </div>
 
 </body>
