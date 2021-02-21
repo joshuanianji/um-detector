@@ -95,14 +95,12 @@
               .then(response => response.json())
               .then(data => {
                 console.log(data);
-                //formResults = data;
-                //console.log(formResults);
-                iframe.arr = data;
-                console.log(iframe.arr);
-                var myWindow = window.open('statistics.html');
-                myWindow.arr = data;
-                console.log(myWindow.arr);
-                document.getElementById('p').innerHTML = JSON.stringify(data);
+
+                var returnval = '';
+                Object.keys(data).forEach( key => {
+                    returnval += key.replace(/_/g, ' ') +': '+ data[key] + '<br>';
+                });
+                document.getElementById('p').innerHTML = returnval//JSON.stringify(data.articulation_rate);//JSON.stringify(data).articulation_rate;
               })
               .catch(err => {
                   alert(err);
@@ -112,20 +110,13 @@
         };
 
 
+
     </script>
+
+
 
     <div id = "output"></div>
-    <script>
-        const testData = {"articulation_rate":3.0,"balance":0.8,"f0_max":287.0,"f0_mean":153.92,"f0_median":139.5,"f0_min":79.0,"f0_quan75":190.0,"f0_quantile25":114.0,"f0_std":49.35,"gender":{"gender":"male","mood":"passionate","p":2.180743305984188e-139,"sample":5},"number_ of_syllables":115.0,"number_of_pauses":9.0,"original_duration":45.8,"pronounciation_score":79.995,"rate_of_speech":3.0,"speaking_duration":38.1};
-        const usefulData = ["articulation_rate", "number_ of_syllables", "rate_of_speech"];
-
-        const bodyDiv = document.getElementById('output');
-        usefulData.forEach( key => {
-            const content = document.createElement('div');
-            content.innerHTML = key +': '+ testData[key];
-            bodyDiv.appendChild(content);
-        });
-    </script>
+    <p id="p"></p>
   </div>
 
   <div class="box">
@@ -142,7 +133,7 @@
     <button id="viewStatsButton">View Statistics</button>
   </div>
 
-  
+
 
   <script>
     function setUpFrame() {
